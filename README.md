@@ -164,7 +164,7 @@ API_HOST=0.0.0.0
 API_PORT=8000
 
 # Frontend
-API_BASE_URL=http://localhost:8000
+API_BASE_URL=https://sistema-de-player.onrender.com
 ```
 
 ## 📊 API Endpoints

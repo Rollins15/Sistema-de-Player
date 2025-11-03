@@ -63,7 +63,7 @@ Se você já tem arquivos de música no seu computador:
 Você pode fazer upload via API diretamente:
 
 ```bash
-curl -X POST "http://10.46.201.200:8000/media/upload" \
+curl -X POST "https://sistema-de-player.onrender.com/media/upload" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@caminho/para/musica.mp3"
 ```
@@ -74,7 +74,7 @@ curl -X POST "http://10.46.201.200:8000/media/upload" \
 
 - **Arquivos físicos:** `backend/uploads/`
 - **Metadados:** `backend/media_player.db` (SQLite)
-- **URL da API:** `http://10.46.201.200:8000/media/file/{id}`
+- **URL da API:** `https://sistema-de-player.onrender.com/media/file/{id}`
 
 ---
 
@@ -119,7 +119,7 @@ backend/
 - [ ] Arquivos de música copiados
 - [ ] Banco de dados criado
 - [ ] Músicas registradas no banco
-- [ ] API respondendo em `http://10.46.201.200:8000`
+- [ ] API respondendo em `https://sistema-de-player.onrender.com`
 
 ---
 

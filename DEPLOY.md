@@ -38,8 +38,8 @@ O código já está commitado e pronto para deploy.
 
 No Render, vá em **Environment** e adicione:
 
-- **API_BASE_URL**: `https://seu-servico.onrender.com` (será gerado após deploy)
-- **PYTHON_VERSION**: `3.12.0`
+- **API_BASE_URL**: `https://sistema-de-player.onrender.com` (URL do serviço)
+- **PYTHON_VERSION**: `3.12.0` (opcional)
 
 ### Passo 4: Configurar Disco Persistente (Opcional)
 
@@ -69,13 +69,13 @@ Para armazenar arquivos de mídia:
 
 1. Clique em **"Manual Deploy"** → **"Deploy latest commit"**
 2. Aguarde o build completar (pode levar alguns minutos)
-3. Anote a URL gerada: `https://seu-servico.onrender.com`
+3. Anote a URL gerada: `https://sistema-de-player.onrender.com` (ou a URL do seu serviço)
 
 ### Passo 7: Testar o Deploy
 
 1. Teste o endpoint de health:
 ```bash
-curl https://seu-servico.onrender.com/health
+curl https://sistema-de-player.onrender.com/health
 ```
 
 2. Deve retornar:
@@ -109,7 +109,7 @@ eas build:configure
 
 1. Crie um arquivo `.env` na raiz do projeto:
 ```
-EXPO_PUBLIC_API_URL=https://seu-servico.onrender.com
+EXPO_PUBLIC_API_URL=https://sistema-de-player.onrender.com
 ```
 
 2. Ou atualize diretamente em `src/services/ApiService.js` com a URL do Render.
@@ -152,8 +152,8 @@ eas build --platform ios --profile production
 1. Atualize `src/services/ApiService.js` com a URL do Render:
 ```javascript
 const POSSIBLE_API_URLS = [
-  'https://seu-servico.onrender.com',  // URL do Render
-  'http://127.0.0.1:8000',            // Local (fallback)
+  'https://sistema-de-player.onrender.com',  // URL do Render
+  'http://127.0.0.1:8000',                  // Local (fallback)
 ];
 ```
 

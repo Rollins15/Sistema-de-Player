@@ -1,6 +1,12 @@
 # 🔧 Configuração da API
 
-## 📍 Como Configurar o IP da API
+## 🌐 URL de Produção
+
+**URL da API em Produção:** `https://sistema-de-player.onrender.com`
+
+O app está configurado para usar automaticamente esta URL. Para desenvolvimento local, veja abaixo.
+
+## 📍 Como Configurar o IP da API (Desenvolvimento Local)
 
 O app agora tenta automaticamente conectar a várias URLs possíveis. Se você trocar de rede, atualize as URLs no arquivo `src/services/ApiService.js`.
 

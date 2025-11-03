@@ -41,17 +41,7 @@ No Render, vá em **Environment** e adicione:
 - **API_BASE_URL**: `https://sistema-de-player.onrender.com` (URL do serviço)
 - **PYTHON_VERSION**: `3.12.0` (opcional)
 
-### Passo 4: Configurar Disco Persistente (Opcional)
-
-Para armazenar arquivos de mídia:
-
-1. Vá em **Settings** → **Disk**
-2. Adicione um disco persistente:
-   - **Name**: `uploads-disk`
-   - **Mount Path**: `/opt/render/project/src/uploads`
-   - **Size**: 1GB (ou conforme necessário)
-
-### Passo 5: Configurar Banco de Dados
+### Passo 4: Configurar Banco de Dados
 
 **Opção 1: SQLite (simples, não recomendado para produção)**
 - Não é necessário configuração adicional
@@ -188,7 +178,6 @@ expo publish
 - Teste a API diretamente no navegador
 
 ### Arquivos não são salvos
-- Verifique se o disco persistente está configurado
 - Verifique permissões de escrita
 - Consulte os logs do Render
 

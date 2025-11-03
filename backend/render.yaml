@@ -13,10 +13,6 @@ services:
         fromDatabase:
           name: sistema-video-db
           property: connectionString
-    disk:
-      name: sistema-video-disk
-      mountPath: /opt/render/project/src/uploads
-      sizeGB: 1
 
 databases:
   - name: sistema-video-db

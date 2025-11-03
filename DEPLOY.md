@@ -8,28 +8,21 @@ Este guia explica como fazer o deploy do backend no Render e do frontend no Expo
 2. Conta no [Expo](https://expo.dev)
 3. Git configurado
 
+## 📦 Repositório
+
+**Repositório GitHub**: [https://github.com/Rollins15/Sistema-de-Player.git](https://github.com/Rollins15/Sistema-de-Player.git)
+
+O código já está commitado e pronto para deploy.
+
 ---
 
 ## 🔧 Parte 1: Deploy do Backend no Render
 
-### Passo 1: Preparar o Repositório
-
-1. Certifique-se de que todos os arquivos estão commitados:
-```bash
-git add .
-git commit -m "Preparar para deploy"
-```
-
-2. Faça push para o GitHub/GitLab:
-```bash
-git push origin main
-```
-
-### Passo 2: Criar Serviço no Render
+### Passo 1: Criar Serviço no Render
 
 1. Acesse [Render Dashboard](https://dashboard.render.com)
 2. Clique em **"New +"** → **"Web Service"**
-3. Conecte seu repositório (GitHub/GitLab)
+3. Conecte o repositório: [https://github.com/Rollins15/Sistema-de-Player.git](https://github.com/Rollins15/Sistema-de-Player.git)
 4. Configure o serviço:
    - **Name**: `sistema-video-api`
    - **Region**: Escolha a região mais próxima

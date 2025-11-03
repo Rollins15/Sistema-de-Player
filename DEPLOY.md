@@ -1,4 +1,4 @@
-# 🚀 Guia de Deploy - Sistema de Vídeo e Música
++# 🚀 Guia de Deploy - Sistema de Vídeo e Música
 
 Este guia explica como fazer o deploy do backend no Render e do frontend no Expo.
 
@@ -24,13 +24,15 @@ O código já está commitado e pronto para deploy.
 2. Clique em **"New +"** → **"Web Service"**
 3. Conecte o repositório: [https://github.com/Rollins15/Sistema-de-Player.git](https://github.com/Rollins15/Sistema-de-Player.git)
 4. Configure o serviço:
-   - **Name**: `sistema-video-api`
-   - **Region**: Escolha a região mais próxima
-   - **Branch**: `master` (branch principal)
-   - **Root Directory**: `backend`
-   - **Runtime**: `Python 3`
+   - **Source Code**: Já conectado ao repositório `Rollins15/Sistema-de-Player`
+   - **Name**: `sistema-video-api` (ou `Sistema-de-Player`)
+   - **Language**: **IMPORTANTE** - Selecione **"Python"** (não Node!)
+   - **Branch**: `master`
+   - **Region**: Escolha a região mais próxima (ex: "Oregon (US West)")
+   - **Root Directory**: `backend` ⚠️ **CRÍTICO** - Deve ser `backend`
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT` ⚠️ **Use `$PORT` e não um número fixo**
+   - **Instance Type**: Selecione "Free" para começar (pode mudar depois)
 
 ### Passo 3: Configurar Variáveis de Ambiente
 

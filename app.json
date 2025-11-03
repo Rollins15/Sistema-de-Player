@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Sistema_de_video",
-    "slug": "Sistema_de_video",
+    "name": "Sistema de Vídeo e Música",
+    "slug": "sistema-video-musica",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,17 +13,39 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sistemavideo.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.sistemavideo.app",
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_AUDIO",
+        "READ_MEDIA_VIDEO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Permitir acesso às fotos",
+          "savePhotosPermission": "Permitir salvar fotos",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ],
+    "extra": {
+      "apiUrl": "https://sistema-video-api.onrender.com"
     }
   }
 }

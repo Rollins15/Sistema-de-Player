@@ -1,0 +1,211 @@
+# 🚀 Guia de Deploy - Sistema de Vídeo e Música
+
+Este guia explica como fazer o deploy do backend no Render e do frontend no Expo.
+
+## 📋 Pré-requisitos
+
+1. Conta no [Render](https://render.com)
+2. Conta no [Expo](https://expo.dev)
+3. Git configurado
+
+---
+
+## 🔧 Parte 1: Deploy do Backend no Render
+
+### Passo 1: Preparar o Repositório
+
+1. Certifique-se de que todos os arquivos estão commitados:
+```bash
+git add .
+git commit -m "Preparar para deploy"
+```
+
+2. Faça push para o GitHub/GitLab:
+```bash
+git push origin main
+```
+
+### Passo 2: Criar Serviço no Render
+
+1. Acesse [Render Dashboard](https://dashboard.render.com)
+2. Clique em **"New +"** → **"Web Service"**
+3. Conecte seu repositório (GitHub/GitLab)
+4. Configure o serviço:
+   - **Name**: `sistema-video-api`
+   - **Region**: Escolha a região mais próxima
+   - **Branch**: `main` (ou sua branch principal)
+   - **Root Directory**: `backend`
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+### Passo 3: Configurar Variáveis de Ambiente
+
+No Render, vá em **Environment** e adicione:
+
+- **API_BASE_URL**: `https://seu-servico.onrender.com` (será gerado após deploy)
+- **PYTHON_VERSION**: `3.12.0`
+
+### Passo 4: Configurar Disco Persistente (Opcional)
+
+Para armazenar arquivos de mídia:
+
+1. Vá em **Settings** → **Disk**
+2. Adicione um disco persistente:
+   - **Name**: `uploads-disk`
+   - **Mount Path**: `/opt/render/project/src/uploads`
+   - **Size**: 1GB (ou conforme necessário)
+
+### Passo 5: Configurar Banco de Dados
+
+**Opção 1: SQLite (simples, não recomendado para produção)**
+- Não é necessário configuração adicional
+- O SQLite será criado automaticamente
+
+**Opção 2: PostgreSQL (recomendado)**
+1. No Render, vá em **"New +"** → **"PostgreSQL"**
+2. Configure:
+   - **Name**: `sistema-video-db`
+   - **Plan**: Free (ou pago)
+3. Adicione a variável de ambiente no serviço web:
+   - **DATABASE_URL**: `postgresql://user:pass@host/dbname` (fornecido pelo Render)
+
+### Passo 6: Deploy
+
+1. Clique em **"Manual Deploy"** → **"Deploy latest commit"**
+2. Aguarde o build completar (pode levar alguns minutos)
+3. Anote a URL gerada: `https://seu-servico.onrender.com`
+
+### Passo 7: Testar o Deploy
+
+1. Teste o endpoint de health:
+```bash
+curl https://seu-servico.onrender.com/health
+```
+
+2. Deve retornar:
+```json
+{"status": "healthy", "timestamp": "..."}
+```
+
+---
+
+## 📱 Parte 2: Deploy do Frontend no Expo
+
+### Passo 1: Instalar EAS CLI
+
+```bash
+npm install -g eas-cli
+```
+
+### Passo 2: Configurar EAS
+
+1. Faça login no Expo:
+```bash
+eas login
+```
+
+2. Configure o projeto:
+```bash
+eas build:configure
+```
+
+### Passo 3: Atualizar API URL
+
+1. Crie um arquivo `.env` na raiz do projeto:
+```
+EXPO_PUBLIC_API_URL=https://seu-servico.onrender.com
+```
+
+2. Ou atualize diretamente em `src/services/ApiService.js` com a URL do Render.
+
+### Passo 4: Publicar no Expo
+
+**Opção 1: Expo Go (Recomendado para demonstração)**
+
+1. Publique o app:
+```bash
+expo publish
+```
+
+2. Você receberá um link como:
+```
+https://expo.dev/@seu-usuario/sistema-video-musica
+```
+
+3. Compartilhe este link com o docente para acessar no Expo Go.
+
+**Opção 2: Build de Produção**
+
+1. Para Android:
+```bash
+eas build --platform android --profile production
+```
+
+2. Para iOS:
+```bash
+eas build --platform ios --profile production
+```
+
+3. Aguarde o build (pode levar 15-30 minutos)
+4. Baixe o APK/IPA ou compartilhe o link da loja
+
+---
+
+## 🔗 Parte 3: Configurar Frontend para Usar Render
+
+1. Atualize `src/services/ApiService.js` com a URL do Render:
+```javascript
+const POSSIBLE_API_URLS = [
+  'https://seu-servico.onrender.com',  // URL do Render
+  'http://127.0.0.1:8000',            // Local (fallback)
+];
+```
+
+2. Publique novamente no Expo:
+```bash
+expo publish
+```
+
+---
+
+## ✅ Checklist Final
+
+- [ ] Backend deployado no Render e funcionando
+- [ ] API responde em `/health`
+- [ ] Frontend publicado no Expo
+- [ ] URL do Expo compartilhada com docente
+- [ ] API URL configurada no frontend
+- [ ] Testado end-to-end
+
+---
+
+## 🐛 Solução de Problemas
+
+### Backend não inicia no Render
+- Verifique os logs no Render Dashboard
+- Certifique-se de que o `startCommand` está correto
+- Verifique se todas as dependências estão em `requirements.txt`
+
+### Frontend não conecta à API
+- Verifique se a URL da API está correta
+- Verifique CORS no backend (já configurado para permitir todos)
+- Teste a API diretamente no navegador
+
+### Arquivos não são salvos
+- Verifique se o disco persistente está configurado
+- Verifique permissões de escrita
+- Consulte os logs do Render
+
+---
+
+## 📞 Suporte
+
+Para mais informações:
+- [Documentação do Render](https://render.com/docs)
+- [Documentação do Expo](https://docs.expo.dev)
+
+---
+
+**Desenvolvido para fins educacionais - Disciplina de Programação Móvel**
+

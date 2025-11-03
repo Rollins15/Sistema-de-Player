@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: sistema-video-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: API_BASE_URL
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sistema-video-db
+          property: connectionString
+    disk:
+      name: sistema-video-disk
+      mountPath: /opt/render/project/src/uploads
+      sizeGB: 1
+
+databases:
+  - name: sistema-video-db
+    plan: free
+    databaseName: media_player
+    user: media_user
+

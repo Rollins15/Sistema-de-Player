@@ -26,7 +26,7 @@ O código já está commitado e pronto para deploy.
 4. Configure o serviço:
    - **Name**: `sistema-video-api`
    - **Region**: Escolha a região mais próxima
-   - **Branch**: `main` (ou sua branch principal)
+   - **Branch**: `master` (branch principal)
    - **Root Directory**: `backend`
    - **Runtime**: `Python 3`
    - **Build Command**: `pip install -r requirements.txt`

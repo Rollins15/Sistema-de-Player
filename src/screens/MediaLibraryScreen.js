@@ -9,7 +9,10 @@ const MediaLibraryScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    MediaService.init().then(() => loadMedia());
+    MediaService.init().then(() => loadMedia()).catch((error) => {
+      console.warn('Erro ao inicializar serviço:', error);
+      loadMedia(); // Tentar carregar mesmo se houver erro na inicialização
+    });
   }, []);
 
   const loadMedia = async () => {
@@ -18,8 +21,8 @@ const MediaLibraryScreen = ({ navigation }) => {
       const mediaData = await MediaService.getAllMedia();
       setMedia(mediaData);
     } catch (error) {
-      Alert.alert('Erro', 'Falha ao carregar mídias');
-      console.error('Erro ao carregar mídias:', error);
+      console.warn('Erro ao carregar mídias:', error);
+      setMedia([]); // Definir array vazio em caso de erro
     } finally {
       setLoading(false);
     }

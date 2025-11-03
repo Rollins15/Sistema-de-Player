@@ -9,26 +9,37 @@ class ApiOnlyMediaService {
   }
 
   async init() {
-    await this.apiService.init();
-    
-    if (!this.apiService.isAvailable()) {
-      console.log('⚠️ API não disponível - o app requer conexão com o backend');
-      throw new Error('API não disponível. Por favor, inicie o servidor backend.');
+    try {
+      await this.apiService.init();
+      
+      if (!this.apiService.isAvailable()) {
+        console.warn('⚠️ API não disponível - o app continuará em modo offline');
+        return; // Não lançar erro, apenas logar
+      }
+      
+      console.log('✅ Serviço de Mídia API-Only inicializado');
+    } catch (error) {
+      console.warn('⚠️ Erro ao inicializar serviço de mídia:', error);
+      // Não lançar erro, permitir que o app continue em modo offline
     }
-    
-    console.log('✅ Serviço de Mídia API-Only inicializado');
   }
 
   // ===== GETTERS =====
 
   async getAllMedia() {
     if (!this.apiService.isAvailable()) {
-      throw new Error('API não disponível');
+      console.warn('⚠️ API não disponível, retornando array vazio');
+      return []; // Retornar array vazio em vez de lançar erro
     }
     
-    const media = await this.apiService.getAllMedia();
-    console.log(`✅ ${media.length} mídias carregadas da API`);
-    return media;
+    try {
+      const media = await this.apiService.getAllMedia();
+      console.log(`✅ ${media.length} mídias carregadas da API`);
+      return media;
+    } catch (error) {
+      console.warn('⚠️ Erro ao carregar mídias:', error);
+      return []; // Retornar array vazio em caso de erro
+    }
   }
 
   async getMedia(id) {

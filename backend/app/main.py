@@ -23,7 +23,9 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # Configuração da URL base da API
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+# Remove barra final se existir para evitar duplo slash
+_api_url = os.getenv("API_BASE_URL", "http://localhost:8000")
+API_BASE_URL = _api_url.rstrip('/')
 
 # Modelos do banco de dados
 class Media(Base):

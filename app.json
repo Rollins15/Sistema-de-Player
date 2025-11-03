@@ -45,7 +45,7 @@
       ]
     ],
     "extra": {
-      "apiUrl": "https://sistema-video-api.onrender.com"
+      "apiUrl": "https://sistema-de-player.onrender.com"
     }
   }
 }

@@ -5,9 +5,9 @@ import * as FileSystem from 'expo-file-system/legacy';
 // Em produção, usar a URL do Render
 // Para desenvolvimento local, adicionar IPs locais
 const POSSIBLE_API_URLS = [
-  // Produção - URL do Render (será preenchida após deploy)
-  process.env.EXPO_PUBLIC_API_URL || 'https://sistema-video-api.onrender.com',
-  // Desenvolvimento local
+  // Produção - URL do Render (URL real do serviço)
+  'https://sistema-de-player.onrender.com',
+  // Desenvolvimento local (fallback)
   'http://127.0.0.1:8000',
   'http://192.168.153.1:8000',
   'http://192.168.2.1:8000',

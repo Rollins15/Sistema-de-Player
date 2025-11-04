@@ -33,13 +33,21 @@ const MediaLibraryScreen = ({ navigation }) => {
       setLoading(true);
       const newMedia = await MediaService.pickMediaFile();
       
+      // Se retornou null, o usuário cancelou - não mostrar erro
+      if (newMedia === null) {
+        console.log('Seleção cancelada pelo usuário');
+        return;
+      }
+      
       if (newMedia) {
         // Recarregar todas as mídias para garantir que está atualizado
         await loadMedia();
         Alert.alert('Sucesso', 'Mídia adicionada com sucesso!');
       }
     } catch (error) {
-      Alert.alert('Erro', 'Falha ao selecionar arquivo');
+      // Mostrar mensagem de erro mais específica
+      const errorMessage = error.message || 'Erro desconhecido ao selecionar arquivo';
+      Alert.alert('Erro', errorMessage);
       console.error('Erro ao selecionar arquivo:', error);
     } finally {
       setLoading(false);

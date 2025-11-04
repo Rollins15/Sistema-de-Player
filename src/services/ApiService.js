@@ -136,7 +136,7 @@ class ApiService {
         uri: fileUri,
         name: filename,
         type: mimeType,
-      } as any);
+      });
 
       // Adicionar thumbnail se existir
       if (metadata.thumbnail) {
@@ -148,7 +148,7 @@ class ApiService {
             uri: metadata.thumbnail,
             name: thumbnailFilename,
             type: 'image/jpeg',
-          } as any);
+          });
         } else {
           console.warn('⚠️ Thumbnail não encontrado, continuando sem thumbnail');
         }

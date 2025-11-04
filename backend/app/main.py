@@ -253,6 +253,9 @@ async def health_check():
     return {"status": "healthy", "timestamp": datetime.utcnow()}
 
 # Rotas para mídia
+# IMPORTANTE: Rotas específicas devem vir ANTES das rotas com parâmetros
+# para evitar conflitos de roteamento
+
 @app.get("/media", response_model=List[MediaResponse])
 async def get_all_media(db: Session = Depends(get_db)):
     # Buscar todas as mídias ordenadas por título (alfabético)
@@ -265,20 +268,6 @@ async def get_all_media(db: Session = Depends(get_db)):
             m.cover = format_cover_path(m.cover)
         if m.thumbnail_path:
             m.thumbnail_path = format_thumbnail_path(m.thumbnail_path)
-    return media
-
-@app.get("/media/{media_id}", response_model=MediaResponse)
-async def get_media(media_id: int, db: Session = Depends(get_db)):
-    media = db.query(Media).filter(Media.id == media_id).first()
-    if not media:
-        raise HTTPException(status_code=404, detail="Mídia não encontrada")
-    # Converter path para URL da API
-    if media.path:
-        media.path = format_media_path(media.path, media.id)
-    if media.cover:
-        media.cover = format_cover_path(media.cover)
-    if media.thumbnail_path:
-        media.thumbnail_path = format_thumbnail_path(media.thumbnail_path)
     return media
 
 @app.post("/media/upload")
@@ -373,6 +362,77 @@ async def create_media(media: MediaCreate, db: Session = Depends(get_db)):
     db.refresh(db_media)
     return db_media
 
+@app.get("/media/favorites", response_model=List[MediaResponse])
+async def get_favorite_media(db: Session = Depends(get_db)):
+    media = db.query(Media).filter(Media.is_favorite == True).order_by(Media.title).all()
+    for m in media:
+        if m.path:
+            m.path = format_media_path(m.path, m.id)
+        if m.cover:
+            m.cover = format_cover_path(m.cover)
+        if m.thumbnail_path:
+            m.thumbnail_path = format_thumbnail_path(m.thumbnail_path)
+    return media
+
+@app.get("/media/search/{query}", response_model=List[MediaResponse])
+async def search_media(query: str, db: Session = Depends(get_db)):
+    media = db.query(Media).filter(
+        Media.title.contains(query) | Media.filename.contains(query)
+    ).order_by(Media.title).all()
+    for m in media:
+        if m.path:
+            m.path = format_media_path(m.path, m.id)
+        if m.cover:
+            m.cover = format_cover_path(m.cover)
+        if m.thumbnail_path:
+            m.thumbnail_path = format_thumbnail_path(m.thumbnail_path)
+    return media
+
+@app.get("/media/type/{media_type}", response_model=List[MediaResponse])
+async def get_media_by_type(media_type: str, db: Session = Depends(get_db)):
+    if media_type not in ['video', 'audio']:
+        raise HTTPException(status_code=400, detail="Tipo deve ser 'video' ou 'audio'")
+    
+    media = db.query(Media).filter(Media.type == media_type).order_by(Media.title).all()
+    for m in media:
+        if m.path:
+            m.path = format_media_path(m.path, m.id)
+        if m.cover:
+            m.cover = format_cover_path(m.cover)
+        if m.thumbnail_path:
+            m.thumbnail_path = format_thumbnail_path(m.thumbnail_path)
+    return media
+
+@app.get("/media/file/{media_id}")
+async def get_media_file(media_id: int, db: Session = Depends(get_db)):
+    """Servir arquivo de mídia"""
+    from fastapi.responses import FileResponse
+    
+    db_media = db.query(Media).filter(Media.id == media_id).first()
+    if not db_media:
+        raise HTTPException(status_code=404, detail="Mídia não encontrada")
+    
+    file_path = Path(db_media.path)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado")
+    
+    return FileResponse(file_path, media_type='application/octet-stream')
+
+# Rotas com parâmetros genéricos DEVEM vir DEPOIS das rotas específicas
+@app.get("/media/{media_id}", response_model=MediaResponse)
+async def get_media(media_id: int, db: Session = Depends(get_db)):
+    media = db.query(Media).filter(Media.id == media_id).first()
+    if not media:
+        raise HTTPException(status_code=404, detail="Mídia não encontrada")
+    # Converter path para URL da API
+    if media.path:
+        media.path = format_media_path(media.path, media.id)
+    if media.cover:
+        media.cover = format_cover_path(media.cover)
+    if media.thumbnail_path:
+        media.thumbnail_path = format_thumbnail_path(media.thumbnail_path)
+    return media
+
 @app.put("/media/{media_id}", response_model=MediaResponse)
 async def update_media(media_id: int, media_update: MediaUpdate, db: Session = Depends(get_db)):
     db_media = db.query(Media).filter(Media.id == media_id).first()
@@ -424,18 +484,6 @@ async def delete_media(media_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Mídia deletada com sucesso"}
 
-@app.get("/media/favorites", response_model=List[MediaResponse])
-async def get_favorite_media(db: Session = Depends(get_db)):
-    media = db.query(Media).filter(Media.is_favorite == True).order_by(Media.title).all()
-    for m in media:
-        if m.path:
-            m.path = format_media_path(m.path, m.id)
-        if m.cover:
-            m.cover = format_cover_path(m.cover)
-        if m.thumbnail_path:
-            m.thumbnail_path = format_thumbnail_path(m.thumbnail_path)
-    return media
-
 @app.post("/media/{media_id}/toggle-favorite", response_model=MediaResponse)
 async def toggle_favorite(media_id: int, db: Session = Depends(get_db)):
     db_media = db.query(Media).filter(Media.id == media_id).first()
@@ -453,50 +501,6 @@ async def toggle_favorite(media_id: int, db: Session = Depends(get_db)):
     if db_media.thumbnail_path:
         db_media.thumbnail_path = format_thumbnail_path(db_media.thumbnail_path)
     return db_media
-
-@app.get("/media/search/{query}", response_model=List[MediaResponse])
-async def search_media(query: str, db: Session = Depends(get_db)):
-    media = db.query(Media).filter(
-        Media.title.contains(query) | Media.filename.contains(query)
-    ).order_by(Media.title).all()
-    for m in media:
-        if m.path:
-            m.path = format_media_path(m.path, m.id)
-        if m.cover:
-            m.cover = format_cover_path(m.cover)
-        if m.thumbnail_path:
-            m.thumbnail_path = format_thumbnail_path(m.thumbnail_path)
-    return media
-
-@app.get("/media/type/{media_type}", response_model=List[MediaResponse])
-async def get_media_by_type(media_type: str, db: Session = Depends(get_db)):
-    if media_type not in ['video', 'audio']:
-        raise HTTPException(status_code=400, detail="Tipo deve ser 'video' ou 'audio'")
-    
-    media = db.query(Media).filter(Media.type == media_type).order_by(Media.title).all()
-    for m in media:
-        if m.path:
-            m.path = format_media_path(m.path, m.id)
-        if m.cover:
-            m.cover = format_cover_path(m.cover)
-        if m.thumbnail_path:
-            m.thumbnail_path = format_thumbnail_path(m.thumbnail_path)
-    return media
-
-@app.get("/media/file/{media_id}")
-async def get_media_file(media_id: int, db: Session = Depends(get_db)):
-    """Servir arquivo de mídia"""
-    from fastapi.responses import FileResponse
-    
-    db_media = db.query(Media).filter(Media.id == media_id).first()
-    if not db_media:
-        raise HTTPException(status_code=404, detail="Mídia não encontrada")
-    
-    file_path = Path(db_media.path)
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Arquivo não encontrado")
-    
-    return FileResponse(file_path, media_type='application/octet-stream')
 
 @app.get("/uploads/covers/{filename}")
 async def get_cover_image(filename: str):

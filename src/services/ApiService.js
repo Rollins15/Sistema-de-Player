@@ -101,31 +101,64 @@ class ApiService {
     }
 
     try {
-      const formData = new FormData();
-      
-      // Adicionar arquivo
+      // Verificar se o arquivo existe
+      console.log('📋 Verificando arquivo:', fileUri);
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      
+      if (!fileInfo.exists) {
+        throw new Error(`Arquivo não encontrado: ${fileUri}`);
+      }
+      
+      if (fileInfo.isDirectory) {
+        throw new Error('O caminho especificado é um diretório, não um arquivo');
+      }
+      
+      console.log('✅ Arquivo encontrado, tamanho:', fileInfo.size, 'bytes');
+      
+      const formData = new FormData();
       const filename = fileUri.split('/').pop();
       
+      // Determinar tipo MIME correto baseado na extensão
+      let mimeType = 'audio/mpeg';
+      if (metadata.type === 'video') {
+        mimeType = 'video/mp4';
+      } else if (filename.toLowerCase().endsWith('.m4a')) {
+        mimeType = 'audio/mp4';
+      } else if (filename.toLowerCase().endsWith('.wav')) {
+        mimeType = 'audio/wav';
+      } else if (filename.toLowerCase().endsWith('.ogg')) {
+        mimeType = 'audio/ogg';
+      }
+      
+      // Adicionar arquivo
+      console.log('📤 Adicionando arquivo ao FormData:', filename, 'Tipo:', mimeType);
       formData.append('file', {
         uri: fileUri,
         name: filename,
-        type: metadata.type === 'video' ? 'video/mp4' : 'audio/mpeg',
-      });
+        type: mimeType,
+      } as any);
 
       // Adicionar thumbnail se existir
       if (metadata.thumbnail) {
-        const thumbnailFilename = metadata.thumbnail.split('/').pop();
-        formData.append('thumbnail', {
-          uri: metadata.thumbnail,
-          name: thumbnailFilename,
-          type: 'image/jpeg',
-        });
+        console.log('🖼️ Adicionando thumbnail ao FormData');
+        const thumbnailInfo = await FileSystem.getInfoAsync(metadata.thumbnail);
+        if (thumbnailInfo.exists && !thumbnailInfo.isDirectory) {
+          const thumbnailFilename = metadata.thumbnail.split('/').pop();
+          formData.append('thumbnail', {
+            uri: metadata.thumbnail,
+            name: thumbnailFilename,
+            type: 'image/jpeg',
+          } as any);
+        } else {
+          console.warn('⚠️ Thumbnail não encontrado, continuando sem thumbnail');
+        }
       }
 
-      // Adicionar metadata
+      // Adicionar metadata (opcional, backend não usa, mas pode ser útil)
       formData.append('title', metadata.title || filename);
       formData.append('type', metadata.type);
+      
+      console.log('🚀 Enviando upload para:', `${this.baseUrl}/media/upload`);
       
       const response = await axios.post(
         `${this.baseUrl}/media/upload`,
@@ -134,13 +167,36 @@ class ApiService {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
+          timeout: 120000, // 2 minutos de timeout para arquivos grandes
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              console.log(`📊 Upload progress: ${percentCompleted}%`);
+            }
+          },
         }
       );
 
+      console.log('✅ Upload concluído com sucesso');
       return response.data;
     } catch (error) {
-      console.error('Erro ao fazer upload:', error);
-      throw error;
+      console.error('❌ Erro ao fazer upload:', error);
+      
+      // Melhorar mensagem de erro
+      if (error.response) {
+        // Erro da API
+        const status = error.response.status;
+        const data = error.response.data;
+        throw new Error(`Erro do servidor (${status}): ${data?.detail || data?.message || 'Erro desconhecido'}`);
+      } else if (error.request) {
+        // Timeout ou erro de rede
+        throw new Error('Erro de conexão: não foi possível conectar ao servidor. Verifique sua internet.');
+      } else if (error.message) {
+        // Erro local
+        throw error;
+      } else {
+        throw new Error('Erro desconhecido ao fazer upload');
+      }
     }
   }
 

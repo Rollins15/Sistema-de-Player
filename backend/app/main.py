@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import os
 import shutil
 from pathlib import Path
@@ -15,6 +15,13 @@ from PIL import Image
 import io
 import base64
 import urllib.parse
+
+# Fuso horário de Moçambique (UTC+2)
+MOZAMBIQUE_TZ = timezone(timedelta(hours=2))
+
+def get_mozambique_time():
+    """Retorna o horário atual de Moçambique (UTC+2)"""
+    return datetime.now(MOZAMBIQUE_TZ)
 
 # Configuração do banco de dados
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./media_player.db")
@@ -42,8 +49,8 @@ class Media(Base):
     thumbnail_path = Column(String)
     cover = Column(String)  # URL da capa da música
     is_favorite = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: get_mozambique_time())
+    updated_at = Column(DateTime, default=lambda: get_mozambique_time())
 
 class Playlist(Base):
     __tablename__ = "playlists"
@@ -51,7 +58,7 @@ class Playlist(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     description = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: get_mozambique_time())
 
 class PlaylistMedia(Base):
     __tablename__ = "playlist_media"
@@ -67,7 +74,7 @@ class PlaybackHistory(Base):
     id = Column(Integer, primary_key=True, index=True)
     media_id = Column(Integer, nullable=False)
     position = Column(Float)
-    played_at = Column(DateTime, default=datetime.utcnow)
+    played_at = Column(DateTime, default=lambda: get_mozambique_time())
 
 # Criar tabelas
 Base.metadata.create_all(bind=engine)
@@ -250,11 +257,10 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "timestamp": datetime.utcnow()}
+    return {"status": "healthy", "timestamp": get_mozambique_time()}
 
 # Rotas para mídia
-# IMPORTANTE: Rotas específicas devem vir ANTES das rotas com parâmetros
-# para evitar conflitos de roteamento
+#
 
 @app.get("/media", response_model=List[MediaResponse])
 async def get_all_media(db: Session = Depends(get_db)):
@@ -442,7 +448,7 @@ async def update_media(media_id: int, media_update: MediaUpdate, db: Session = D
     for field, value in media_update.dict(exclude_unset=True).items():
         setattr(db_media, field, value)
     
-    db_media.updated_at = datetime.utcnow()
+    db_media.updated_at = get_mozambique_time()
     db.commit()
     db.refresh(db_media)
     return db_media
@@ -491,7 +497,7 @@ async def toggle_favorite(media_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Mídia não encontrada")
     
     db_media.is_favorite = not db_media.is_favorite
-    db_media.updated_at = datetime.utcnow()
+    db_media.updated_at = get_mozambique_time()
     db.commit()
     db.refresh(db_media)
     if db_media.path:
